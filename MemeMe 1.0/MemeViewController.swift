@@ -11,20 +11,20 @@ import UIKit
 class MemeViewController: UIViewController{
 
 //MARK: Outlets and Properties
-    @IBOutlet weak var selectedImage: UIImageView!
-    @IBOutlet weak var topTextField: UITextField!
-    @IBOutlet weak var bottomTextField: UITextField!
-    @IBOutlet weak var cameraButton: UIBarButtonItem!
-    @IBOutlet weak var navbar: UIToolbar!
-    @IBOutlet weak var toolbar: UIToolbar!
-    @IBOutlet weak var shareButton: UIBarButtonItem!
+    @IBOutlet internal weak var selectedImage: UIImageView!
+    @IBOutlet private weak var topTextField: UITextField!
+    @IBOutlet private weak var bottomTextField: UITextField!
+    @IBOutlet private weak var cameraButton: UIBarButtonItem!
+    @IBOutlet private weak var navbar: UIToolbar!
+    @IBOutlet private weak var toolbar: UIToolbar!
+    @IBOutlet private weak var shareButton: UIBarButtonItem!
     
-    let textFieldDelgate = TextFieldDelegate()
+    private let textFieldDelgate = TextFieldDelegate()
     
-    var viewShiftedUp = false
+    private var viewShiftedUp = false
     
     // Create a custom font type that will resemble the "Impact" font
-    let memeTextAttributes = [
+    private let memeTextAttributes = [
         NSStrokeColorAttributeName : UIColor.blackColor(),
         NSForegroundColorAttributeName : UIColor.whiteColor(),
         NSFontAttributeName: UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
@@ -72,15 +72,15 @@ class MemeViewController: UIViewController{
 
 // MARK: IB Actions
     
-    @IBAction func selectFromAlbum(sender: UIBarButtonItem) {
+    @IBAction private func selectFromAlbum(sender: UIBarButtonItem) {
         chooseSource("album")
     }
 
-    @IBAction func getImageFromCamera(sender: UIBarButtonItem) {
+    @IBAction private func getImageFromCamera(sender: UIBarButtonItem) {
         chooseSource("camera")
     }
 
-    @IBAction func share(sender: UIBarButtonItem) {
+    @IBAction private func share(sender: UIBarButtonItem) {
         
         // Generate an image with memes permanently affixed, present activity controller to send this image
         // Upon completion, save the meme
@@ -91,19 +91,22 @@ class MemeViewController: UIViewController{
         }
     }
 
-    @IBAction func cancel(sender: UIBarButtonItem) {
+    @IBAction private func cancel(sender: UIBarButtonItem) {
         
         // Reset Meme Editor to starting state
         selectedImage.image = nil
         topTextField.text = "TOP"
+        topTextField.resignFirstResponder()
         bottomTextField.text = "BOTTOM"
+        bottomTextField.resignFirstResponder()
         shareButton.enabled = false
+        
     }
     
     
 // MARK: Supporting Functions
     
-    func chooseSource(type: String){
+    private func chooseSource(type: String){
         
         // Call camera or album imagePicker depending on which button initiated the call
         // Enable share button in the completion handler
@@ -120,7 +123,7 @@ class MemeViewController: UIViewController{
     }
 
     
-    func moveViewForKeyboard(notification: NSNotification){
+    private func moveViewForKeyboard(notification: NSNotification){
         
         // Only run this code if user is editing the bottom text field
         guard bottomTextField.isFirstResponder() else{
@@ -133,41 +136,45 @@ class MemeViewController: UIViewController{
         
         // Adjust view base on notification, but only if the view hasn't already been shifted up
         if notification.name == "UIKeyboardWillShowNotification" && !viewShiftedUp{
-            self.view.frame.origin.y -= keyboardSize.CGRectValue().height
+            //self.view.frame.origin.y -= keyboardSize.CGRectValue().height
+            self.view.frame.origin.y = keyboardSize.CGRectValue().height * -1
             viewShiftedUp = true
         } else if notification.name == "UIKeyboardWillHideNotification"  && viewShiftedUp{
-            self.view.frame.origin.y += keyboardSize.CGRectValue().height
+            //self.view.frame.origin.y += keyboardSize.CGRectValue().height
+            self.view.frame.origin.y = 0
             viewShiftedUp = false
         }
     }
     
-    func generateMemedImage() -> UIImage {
+    private func generateMemedImage() -> UIImage {
         
-        // Hide toolbar and navbar
-        navbar.hidden = true
-        toolbar.hidden = true
+        // Make toolbar and navbar invisible
+        navbar.alpha = 0.0
+        toolbar.alpha = 0.0
         
-        //S creen capture
-        UIGraphicsBeginImageContext(self.view.frame.size)
+        
+        // Screen capture
+        //UIGraphicsBeginImageContext(self.view.frame.size)
+        UIGraphicsBeginImageContextWithOptions(self.view.frame.size, false, 0.0)
         view.drawViewHierarchyInRect(self.view.frame, afterScreenUpdates: true)
         let memedImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
-        // Unhide toolbar and navbar
-        navbar.hidden = false
-        toolbar.hidden = false
+        // Revert toolbar and navbar back to visible
+        navbar.alpha = 1.0
+        toolbar.alpha = 1.0
         
         return memedImage
     }
 
-    func save(){
+    private func save(){
         
         // Save the meme into a struct object
         let meme = MemeStruct(topMemeString: topTextField.text!, bottomMemeString: bottomTextField.text!, originalImage: selectedImage.image!, memedImage: generateMemedImage())
         print(meme)
     }
     
-    func setTextAttributes(textField:UITextField){
+    private func setTextAttributes(textField:UITextField){
         
         // Set the font type to the Impact like font, center the text
         textField.defaultTextAttributes = memeTextAttributes
