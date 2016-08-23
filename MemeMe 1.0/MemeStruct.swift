@@ -15,12 +15,5 @@ struct MemeStruct{
     var memedImage:UIImage
     
     
-    init(topMemeString: String, bottomMemeString: String, originalImage: UIImage, memedImage: UIImage){
-        self.topMemeString = topMemeString
-        self.bottomMemeString = bottomMemeString
-        self.originalImage = originalImage
-        self.memedImage = memedImage
-    }
-    
     
 }

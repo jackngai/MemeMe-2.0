@@ -73,11 +73,11 @@ class MemeViewController: UIViewController{
 // MARK: IB Actions
     
     @IBAction private func selectFromAlbum(sender: UIBarButtonItem) {
-        chooseSource("album")
+        chooseSource(.PhotoLibrary)
     }
 
     @IBAction private func getImageFromCamera(sender: UIBarButtonItem) {
-        chooseSource("camera")
+        chooseSource(.Camera)
     }
 
     @IBAction private func share(sender: UIBarButtonItem) {
@@ -86,8 +86,10 @@ class MemeViewController: UIViewController{
         // Upon completion, save the meme
         let memedImage = generateMemedImage()
         let activityViewController = UIActivityViewController(activityItems: [memedImage], applicationActivities: nil)
-        presentViewController(activityViewController, animated: true){
-          _ in self.save()
+        presentViewController(activityViewController, animated: true, completion: nil)
+        activityViewController.completionWithItemsHandler = {
+            (_, completed, _, _) in
+            completed ? self.save() : print("Share operation cancelled.")
         }
     }
 
@@ -106,18 +108,14 @@ class MemeViewController: UIViewController{
     
 // MARK: Supporting Functions
     
-    private func chooseSource(type: String){
+    private func chooseSource(source: UIImagePickerControllerSourceType){
         
         // Call camera or album imagePicker depending on which button initiated the call
         // Enable share button in the completion handler
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
-        if type == "album"{
-            imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
-        } else if type == "camera" {
-            imagePicker.sourceType = UIImagePickerControllerSourceType.Camera
-        }
-        self.presentViewController(imagePicker, animated: true){
+        imagePicker.sourceType = source
+        presentViewController(imagePicker, animated: true){
             _ in self.shareButton.enabled = true
         }
     }
@@ -136,12 +134,10 @@ class MemeViewController: UIViewController{
         
         // Adjust view base on notification, but only if the view hasn't already been shifted up
         if notification.name == "UIKeyboardWillShowNotification" && !viewShiftedUp{
-            //self.view.frame.origin.y -= keyboardSize.CGRectValue().height
-            self.view.frame.origin.y = keyboardSize.CGRectValue().height * -1
+            view.frame.origin.y = keyboardSize.CGRectValue().height * -1
             viewShiftedUp = true
         } else if notification.name == "UIKeyboardWillHideNotification"  && viewShiftedUp{
-            //self.view.frame.origin.y += keyboardSize.CGRectValue().height
-            self.view.frame.origin.y = 0
+            view.frame.origin.y = 0
             viewShiftedUp = false
         }
     }
@@ -154,9 +150,8 @@ class MemeViewController: UIViewController{
         
         
         // Screen capture
-        //UIGraphicsBeginImageContext(self.view.frame.size)
-        UIGraphicsBeginImageContextWithOptions(self.view.frame.size, false, 0.0)
-        view.drawViewHierarchyInRect(self.view.frame, afterScreenUpdates: true)
+        UIGraphicsBeginImageContextWithOptions(view.frame.size, false, 0.0)
+        view.drawViewHierarchyInRect(view.frame, afterScreenUpdates: true)
         let memedImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
