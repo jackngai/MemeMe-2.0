@@ -13,7 +13,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     
-    var memes = [MemeStruct]()
+    //MARK: Test Code
+    //var memes = [MemeStruct]()
+    
+    var memes = [MemeStruct(topMemeString: "Hi", bottomMemeString: "You", originalImage: UIImage(named: "memeTest")!, memedImage: UIImage(named: "memeTest")!)]
+    
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
