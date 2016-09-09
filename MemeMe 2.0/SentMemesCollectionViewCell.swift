@@ -10,7 +10,6 @@ import UIKit
 
 class SentMemesCollectionViewCell: UICollectionViewCell {
     
-    @IBOutlet weak var topMeme:UILabel!
     @IBOutlet weak var memedImageView:UIImageView!
     
 }

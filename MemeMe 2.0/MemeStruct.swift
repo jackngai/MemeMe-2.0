@@ -13,7 +13,4 @@ struct MemeStruct{
     var bottomMemeString:String
     var originalImage:UIImage
     var memedImage:UIImage
-    
-    
-    
 }

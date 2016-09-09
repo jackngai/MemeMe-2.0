@@ -82,6 +82,10 @@ class MemeViewController: UIViewController{
 
     @IBAction private func share(sender: UIBarButtonItem) {
         
+        // Resign first responder for both text fields so the blinking blue bar indicating active textfield does not show up in the memed image
+        topTextField.resignFirstResponder()
+        bottomTextField.resignFirstResponder()
+        
         // Generate an image with memes permanently affixed, present activity controller to send this image
         // Upon completion, save the meme
         let memedImage = generateMemedImage()
@@ -95,16 +99,25 @@ class MemeViewController: UIViewController{
 
     @IBAction private func cancel(sender: UIBarButtonItem) {
         
-        // Reset Meme Editor to starting state
-        selectedImage.image = nil
-        topTextField.text = "TOP"
-        topTextField.resignFirstResponder()
-        bottomTextField.text = "BOTTOM"
-        bottomTextField.resignFirstResponder()
-        shareButton.enabled = false
-        
-        // Dismiss editor and return to Sent Memes view
-        dismissViewControllerAnimated(true, completion: nil)
+        // Show alert if text was entered so user doesn't lose typed text if they hit cancel by accident
+        if topTextField.text != "TOP" || bottomTextField.text != "BOTTOM"{
+            let warningController = UIAlertController(title: "Lose all changes", message: "Are you sure?", preferredStyle: .Alert)
+            
+            let yesAction = UIAlertAction(title: "Yes", style: .Destructive) {
+                _ in
+                self.cancelAssist()
+            }
+            
+            let noAction = UIAlertAction(title: "No", style: .Default, handler: nil)
+            
+            warningController.addAction(yesAction)
+            warningController.addAction(noAction)
+            presentViewController(warningController, animated: true, completion: nil)
+        } else {
+        // If user didn't type any text, run cancel action w/o warning
+        cancelAssist()
+        }
+
         
     }
     
@@ -167,13 +180,12 @@ class MemeViewController: UIViewController{
 
     private func save(){
         
-        // Save the meme into a struct object, confirm meme is saved properly by printing to console as we are 
-        // not using saved meme in MemeMe 1.0
+        // Save the meme into a struct object, then append meme struct object to meme array, then dismiss the meme editor
         let meme = MemeStruct(topMemeString: topTextField.text!, bottomMemeString: bottomTextField.text!, originalImage: selectedImage.image!, memedImage: generateMemedImage())
-        
         let object = UIApplication.sharedApplication().delegate
         let appDelegate = object as! AppDelegate
         appDelegate.memes.append(meme)
+        dismissViewControllerAnimated(true, completion: nil)
         
     }
     
@@ -182,6 +194,19 @@ class MemeViewController: UIViewController{
         // Set the font type to the Impact like font, center the text
         textField.defaultTextAttributes = memeTextAttributes
         textField.textAlignment = .Center
+    }
+    
+    private func cancelAssist() {
+        // Reset Meme Editor to starting state
+        selectedImage.image = nil
+        topTextField.text = "TOP"
+        topTextField.resignFirstResponder()
+        bottomTextField.text = "BOTTOM"
+        bottomTextField.resignFirstResponder()
+        shareButton.enabled = false
+        
+        // Dismiss editor and return to Sent Memes view
+        dismissViewControllerAnimated(true, completion: nil)
     }
 
 }
