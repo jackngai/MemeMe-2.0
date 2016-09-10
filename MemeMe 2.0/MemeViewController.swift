@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  MemeViewController.swift
 //  MemeMe 2.0
 //
 //  Created by Jack Ngai on 8/19/16.
@@ -43,10 +43,6 @@ class MemeViewController: UIViewController{
         // Disable camera if running in simulator or hardware w/o camera
         cameraButton.enabled = UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera)
         
-        // Set both text fields to meme like fonts and center align
-        setTextAttributes(topTextField)
-        setTextAttributes(bottomTextField)
-        
         // Notify when keyboard is shown/hidden; call method to shift view up/down
         NSNotificationCenter.defaultCenter().addObserverForName(UIKeyboardWillShowNotification, object: nil, queue: nil){ notification in self.moveViewForKeyboard(notification) }
         NSNotificationCenter.defaultCenter().addObserverForName(UIKeyboardWillHideNotification, object: nil, queue: nil){ notification in self.moveViewForKeyboard(notification) }
@@ -54,6 +50,10 @@ class MemeViewController: UIViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Set both text fields to meme like fonts and center align
+        setTextAttributes(topTextField)
+        setTextAttributes(bottomTextField)
         
         // Adjust image to fit in the screen but keeping aspect ratio
         selectedImage.contentMode = .ScaleAspectFit
