@@ -10,13 +10,13 @@ import UIKit
 
 class SentMemesTableViewCell: UITableViewCell {
 
-    @IBOutlet private weak var memeImageView: UIImageView!
-    @IBOutlet private weak var topTextField: UILabel!
-    @IBOutlet private weak var bottomTextField: UILabel!
+    @IBOutlet fileprivate weak var memeImageView: UIImageView!
+    @IBOutlet fileprivate weak var topTextField: UILabel!
+    @IBOutlet fileprivate weak var bottomTextField: UILabel!
     
     internal var currentMeme:MemeStruct!
 
-    override internal func setSelected(selected: Bool, animated: Bool) {
+    override internal func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         
         memeImageView.image = currentMeme.originalImage

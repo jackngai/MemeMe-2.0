@@ -12,16 +12,16 @@ import UIKit
 class SentMemesCollectionViewController: UICollectionViewController {
     
     // MARK: Properties
-    @IBOutlet private weak var layout: UICollectionViewFlowLayout!
+    @IBOutlet fileprivate weak var layout: UICollectionViewFlowLayout!
 
-    private var memes: [MemeStruct] {
-        return (UIApplication.sharedApplication().delegate as! AppDelegate).memes
+    fileprivate var memes: [MemeStruct] {
+        return (UIApplication.shared.delegate as! AppDelegate).memes
     }
     
-    private var rotation = UIInterfaceOrientation.Portrait
+    fileprivate var rotation = UIInterfaceOrientation.portrait
 
     // MARK: View Lifecycle Methods
-    override internal func viewWillAppear(animated: Bool) {
+    override internal func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         // Reload data in case a new meme is saved
         collectionView?.reloadData()
@@ -32,14 +32,14 @@ class SentMemesCollectionViewController: UICollectionViewController {
     
     // MARK: Methods
     // Runs when view changes size, override to call calculateLayout
-    override internal func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+    override internal func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
         calculateLayout(size)
     }
     
 
     // Determine how many memes per row in portrait and landscape
-    private func calculateLayout(size: CGSize){
+    fileprivate func calculateLayout(_ size: CGSize){
         
         // Set spacing to 1 pixel, although this is the minimum spacing
         let spacing:CGFloat = 1.0
@@ -58,19 +58,19 @@ class SentMemesCollectionViewController: UICollectionViewController {
         // Set spacing and size for layout
         layout.minimumLineSpacing = spacing
         layout.minimumInteritemSpacing = spacing
-        layout.itemSize = CGSizeMake(memeSize, memeSize)
+        layout.itemSize = CGSize(width: memeSize, height: memeSize)
     }
     
     // MARK: Collection View Delegate Methods
     
     // Required so collection view knows how many cells is needed
-    override internal func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    override internal func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return memes.count
     }
     
     // Required to show memes in collection view
-    override internal func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("sentMemesCollectionViewCell", forIndexPath: indexPath) as! SentMemesCollectionViewCell
+    override internal func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "sentMemesCollectionViewCell", for: indexPath) as! SentMemesCollectionViewCell
         let meme = memes[indexPath.row]
         cell.memedImageView.image = meme.memedImage
         
@@ -78,8 +78,8 @@ class SentMemesCollectionViewController: UICollectionViewController {
     }
     
     // Create a Detail View Controller instance, populate it with the memed Image, push on to Navigation stack
-    override internal func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-        let detailController = storyboard?.instantiateViewControllerWithIdentifier("MemeDetailViewController") as! MemeDetailViewController
+    override internal func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let detailController = storyboard?.instantiateViewController(withIdentifier: "MemeDetailViewController") as! MemeDetailViewController
         detailController.meme = memes[indexPath.row]
         detailController.currentMemeIndex = indexPath.row
         navigationController!.pushViewController(detailController, animated: true)
@@ -87,8 +87,8 @@ class SentMemesCollectionViewController: UICollectionViewController {
     
     
     // Enable user to re-organize memes in collection view
-    override internal func collectionView(collectionView: UICollectionView, moveItemAtIndexPath sourceIndexPath: NSIndexPath,toIndexPath destinationIndexPath: NSIndexPath) {
-        let object = UIApplication.sharedApplication().delegate
+    override internal func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath,to destinationIndexPath: IndexPath) {
+        let object = UIApplication.shared.delegate
         let appDelegate = object as! AppDelegate
         let tempMeme = appDelegate.memes[sourceIndexPath.row]
         appDelegate.memes[sourceIndexPath.row] = appDelegate.memes[destinationIndexPath.row]

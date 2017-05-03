@@ -12,33 +12,33 @@ class MemeDetailViewController: UIViewController {
     
 // MARK: Properties
     
-    @IBOutlet private weak var memeImageView: UIImageView!
+    @IBOutlet fileprivate weak var memeImageView: UIImageView!
 
     internal var meme:MemeStruct!
     internal var currentMemeIndex:Int!
     
-    override internal func viewWillAppear(animated: Bool) {
+    override internal func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         memeImageView.image = meme.memedImage
     }
 
 // MARK: Methods
-    @IBAction private func deleteMeme(sender: UIBarButtonItem) {
+    @IBAction fileprivate func deleteMeme(_ sender: UIBarButtonItem) {
         
         // Create warning view controller to confirm user really wants to delete the meme
-        let warningController = UIAlertController(title: "Delete Meme", message: "Are you sure?", preferredStyle: .Alert)
+        let warningController = UIAlertController(title: "Delete Meme", message: "Are you sure?", preferredStyle: .alert)
         
         // If user confirms, remove the meme from the array and return user to previous view
-        let deleteAction = UIAlertAction(title: "Yes", style: .Destructive) {
+        let deleteAction = UIAlertAction(title: "Yes", style: .destructive) {
             _ in
-            (UIApplication.sharedApplication().delegate as! AppDelegate).memes.removeAtIndex(self.currentMemeIndex)
-            self.navigationController?.popViewControllerAnimated(true)
+            (UIApplication.shared.delegate as! AppDelegate).memes.remove(at: self.currentMemeIndex)
+            self.navigationController?.popViewController(animated: true)
         }
         // If user cancels, no action is taken
-        let cancelAction = UIAlertAction(title: "No", style: .Default, handler: nil)
+        let cancelAction = UIAlertAction(title: "No", style: .default, handler: nil)
         
         warningController.addAction(deleteAction)
         warningController.addAction(cancelAction)
-        presentViewController(warningController, animated: true, completion: nil)
+        present(warningController, animated: true, completion: nil)
     }
 }

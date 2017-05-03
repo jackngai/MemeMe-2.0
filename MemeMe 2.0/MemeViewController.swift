@@ -12,40 +12,40 @@ class MemeViewController: UIViewController{
 
 //MARK: Outlets and Properties
     @IBOutlet internal weak var selectedImage: UIImageView!
-    @IBOutlet private weak var topTextField: UITextField!
-    @IBOutlet private weak var bottomTextField: UITextField!
-    @IBOutlet private weak var cameraButton: UIBarButtonItem!
-    @IBOutlet private weak var navbar: UIToolbar!
-    @IBOutlet private weak var toolbar: UIToolbar!
-    @IBOutlet private weak var shareButton: UIBarButtonItem!
+    @IBOutlet fileprivate weak var topTextField: UITextField!
+    @IBOutlet fileprivate weak var bottomTextField: UITextField!
+    @IBOutlet fileprivate weak var cameraButton: UIBarButtonItem!
+    @IBOutlet fileprivate weak var navbar: UIToolbar!
+    @IBOutlet fileprivate weak var toolbar: UIToolbar!
+    @IBOutlet fileprivate weak var shareButton: UIBarButtonItem!
     
-    private let textFieldDelgate = TextFieldDelegate()
+    fileprivate let textFieldDelgate = TextFieldDelegate()
     
-    private var viewShiftedUp = false
+    fileprivate var viewShiftedUp = false
     
     // Create a custom font type that will resemble the "Impact" font
-    private let memeTextAttributes = [
-        NSStrokeColorAttributeName : UIColor.blackColor(),
-        NSForegroundColorAttributeName : UIColor.whiteColor(),
+    fileprivate let memeTextAttributes = [
+        NSStrokeColorAttributeName : UIColor.black,
+        NSForegroundColorAttributeName : UIColor.white,
         NSFontAttributeName: UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
         NSStrokeWidthAttributeName : -5.0
-    ]
+    ] as [String : Any]
 
 //MARK: View Controller Lifecycle Methods
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         // Disable Share button if no image is loaded
         if selectedImage.image == nil{
-            shareButton.enabled = false
+            shareButton.isEnabled = false
         }
         
         // Disable camera if running in simulator or hardware w/o camera
-        cameraButton.enabled = UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera)
+        cameraButton.isEnabled = UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.camera)
         
         // Notify when keyboard is shown/hidden; call method to shift view up/down
-        NSNotificationCenter.defaultCenter().addObserverForName(UIKeyboardWillShowNotification, object: nil, queue: nil){ notification in self.moveViewForKeyboard(notification) }
-        NSNotificationCenter.defaultCenter().addObserverForName(UIKeyboardWillHideNotification, object: nil, queue: nil){ notification in self.moveViewForKeyboard(notification) }
+        NotificationCenter.default.addObserver(forName: NSNotification.Name.UIKeyboardWillShow, object: nil, queue: nil){ notification in self.moveViewForKeyboard(notification) }
+        NotificationCenter.default.addObserver(forName: NSNotification.Name.UIKeyboardWillHide, object: nil, queue: nil){ notification in self.moveViewForKeyboard(notification) }
     }
     
     override func viewDidLoad() {
@@ -56,31 +56,31 @@ class MemeViewController: UIViewController{
         setTextAttributes(bottomTextField)
         
         // Adjust image to fit in the screen but keeping aspect ratio
-        selectedImage.contentMode = .ScaleAspectFit
+        selectedImage.contentMode = .scaleAspectFit
         
         // Assign text field delegates
         topTextField.delegate = textFieldDelgate
         bottomTextField.delegate = textFieldDelgate
     }
     
-    override func viewDidDisappear(animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
         // Stop receiving notification for showing/hiding keyboard
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
 
 // MARK: IB Actions
     
-    @IBAction private func selectFromAlbum(sender: UIBarButtonItem) {
-        chooseSource(.PhotoLibrary)
+    @IBAction fileprivate func selectFromAlbum(_ sender: UIBarButtonItem) {
+        chooseSource(.photoLibrary)
     }
 
-    @IBAction private func getImageFromCamera(sender: UIBarButtonItem) {
-        chooseSource(.Camera)
+    @IBAction fileprivate func getImageFromCamera(_ sender: UIBarButtonItem) {
+        chooseSource(.camera)
     }
 
-    @IBAction private func share(sender: UIBarButtonItem) {
+    @IBAction fileprivate func share(_ sender: UIBarButtonItem) {
         
         // Resign first responder for both text fields so the blinking blue bar indicating active textfield does not show up in the memed image
         topTextField.resignFirstResponder()
@@ -90,29 +90,29 @@ class MemeViewController: UIViewController{
         // Upon completion, save the meme
         let memedImage = generateMemedImage()
         let activityViewController = UIActivityViewController(activityItems: [memedImage], applicationActivities: nil)
-        presentViewController(activityViewController, animated: true, completion: nil)
+        present(activityViewController, animated: true, completion: nil)
         activityViewController.completionWithItemsHandler = {
             (_, completed, _, _) in
             completed ? self.save() : print("Share operation cancelled.")
         }
     }
 
-    @IBAction private func cancel(sender: UIBarButtonItem) {
+    @IBAction fileprivate func cancel(_ sender: UIBarButtonItem) {
         
         // Show alert if text was entered so user doesn't lose typed text if they hit cancel by accident
         if topTextField.text != "TOP" || bottomTextField.text != "BOTTOM"{
-            let warningController = UIAlertController(title: "Lose all changes", message: "Are you sure?", preferredStyle: .Alert)
+            let warningController = UIAlertController(title: "Lose all changes", message: "Are you sure?", preferredStyle: .alert)
             
-            let yesAction = UIAlertAction(title: "Yes", style: .Destructive) {
+            let yesAction = UIAlertAction(title: "Yes", style: .destructive) {
                 _ in
                 self.cancelAssist()
             }
             
-            let noAction = UIAlertAction(title: "No", style: .Default, handler: nil)
+            let noAction = UIAlertAction(title: "No", style: .default, handler: nil)
             
             warningController.addAction(yesAction)
             warningController.addAction(noAction)
-            presentViewController(warningController, animated: true, completion: nil)
+            present(warningController, animated: true, completion: nil)
         } else {
         // If user didn't type any text, run cancel action w/o warning
         cancelAssist()
@@ -124,23 +124,23 @@ class MemeViewController: UIViewController{
     
 // MARK: Supporting Functions
     
-    private func chooseSource(source: UIImagePickerControllerSourceType){
+    fileprivate func chooseSource(_ source: UIImagePickerControllerSourceType){
         
         // Call camera or album imagePicker depending on which button initiated the call
         // Enable share button in the completion handler
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
         imagePicker.sourceType = source
-        presentViewController(imagePicker, animated: true){
-            _ in self.shareButton.enabled = true
+        present(imagePicker, animated: true){
+            _ in self.shareButton.isEnabled = true
         }
     }
 
     
-    private func moveViewForKeyboard(notification: NSNotification){
+    fileprivate func moveViewForKeyboard(_ notification: Notification){
         
         // Only run this code if user is editing the bottom text field
-        guard bottomTextField.isFirstResponder() else{
+        guard bottomTextField.isFirstResponder else{
             return
         }
         
@@ -149,16 +149,16 @@ class MemeViewController: UIViewController{
         let keyboardSize = userInfo![UIKeyboardFrameEndUserInfoKey] as! NSValue // of CGRect
         
         // Adjust view base on notification, but only if the view hasn't already been shifted up
-        if notification.name == "UIKeyboardWillShowNotification" && !viewShiftedUp{
-            view.frame.origin.y = keyboardSize.CGRectValue().height * -1
+        if notification.name == Notification.Name.UIKeyboardWillShow && !viewShiftedUp{
+            view.frame.origin.y = keyboardSize.cgRectValue.height * -1
             viewShiftedUp = true
-        } else if notification.name == "UIKeyboardWillHideNotification"  && viewShiftedUp{
+        } else if notification.name == Notification.Name.UIKeyboardWillHide && viewShiftedUp{
             view.frame.origin.y = 0
             viewShiftedUp = false
         }
     }
     
-    private func generateMemedImage() -> UIImage {
+    fileprivate func generateMemedImage() -> UIImage {
         
         // Make toolbar and navbar invisible
         navbar.alpha = 0.0
@@ -167,8 +167,8 @@ class MemeViewController: UIViewController{
         
         // Screen capture
         UIGraphicsBeginImageContextWithOptions(view.frame.size, false, 0.0)
-        view.drawViewHierarchyInRect(view.frame, afterScreenUpdates: true)
-        let memedImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        view.drawHierarchy(in: view.frame, afterScreenUpdates: true)
+        let memedImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         
         // Revert toolbar and navbar back to visible
@@ -178,35 +178,35 @@ class MemeViewController: UIViewController{
         return memedImage
     }
 
-    private func save(){
+    fileprivate func save(){
         
         // Save the meme into a struct object, then append meme struct object to meme array, then dismiss the meme editor
         let meme = MemeStruct(topMemeString: topTextField.text!, bottomMemeString: bottomTextField.text!, originalImage: selectedImage.image!, memedImage: generateMemedImage())
-        let object = UIApplication.sharedApplication().delegate
+        let object = UIApplication.shared.delegate
         let appDelegate = object as! AppDelegate
         appDelegate.memes.append(meme)
-        dismissViewControllerAnimated(true, completion: nil)
+        dismiss(animated: true, completion: nil)
         
     }
     
-    private func setTextAttributes(textField:UITextField){
+    fileprivate func setTextAttributes(_ textField:UITextField){
         
         // Set the font type to the Impact like font, center the text
         textField.defaultTextAttributes = memeTextAttributes
-        textField.textAlignment = .Center
+        textField.textAlignment = .center
     }
     
-    private func cancelAssist() {
+    fileprivate func cancelAssist() {
         // Reset Meme Editor to starting state
         selectedImage.image = nil
         topTextField.text = "TOP"
         topTextField.resignFirstResponder()
         bottomTextField.text = "BOTTOM"
         bottomTextField.resignFirstResponder()
-        shareButton.enabled = false
+        shareButton.isEnabled = false
         
         // Dismiss editor and return to Sent Memes view
-        dismissViewControllerAnimated(true, completion: nil)
+        dismiss(animated: true, completion: nil)
     }
 
 }
